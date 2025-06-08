@@ -1,29 +1,42 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { colors } from "@/constants/colors";
+import { ChatProvider } from "@/contexts/ChatContext";
+import { useFonts } from "expo-font";
+import { SplashScreen, Stack } from "expo-router";
+import { useEffect } from "react";
+import { StatusBar } from "react-native";
+import "react-native-reanimated";
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+  const [loaded, error] = useFonts({
+    NotoSansThaiRegular: require("../assets/fonts/NotoSansThai-Regular.ttf"),
+    NotoSansThaiMedium: require("../assets/fonts/NotoSansThai-Medium.ttf"),
+    NotoSansThaiSemiBold: require("../assets/fonts/NotoSansThai-SemiBold.ttf"),
+    NotoSansThaiBold: require("../assets/fonts/NotoSansThai-Bold.ttf"),
   });
 
-  if (!loaded) {
-    // Async font loading only occurs in development.
+  useEffect(() => {
+    if (loaded || error) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded, error]);
+
+  if (!loaded && !error) {
     return null;
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <>
+      <ChatProvider>
+        <Stack>
+          <Stack.Screen name="products" options={{ headerShown: false }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+
+        <StatusBar
+          backgroundColor={colors.primary}
+          barStyle={"light-content"}
+        />
+      </ChatProvider>
+    </>
   );
 }
